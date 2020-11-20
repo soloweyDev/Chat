@@ -8,7 +8,7 @@ namespace Client
     class Program
     {
         private const string host = "127.0.0.1";
-        private const int port = 8080;
+        private const int port = 8888;
         static TcpClient client;
         static NetworkStream stream;
 

@@ -8,9 +8,10 @@ namespace Server
     {
         protected internal string Id { get; private set; }
         protected internal NetworkStream Stream { get; private set; }
-        string userName;
-        TcpClient client;
-        ServerObject server; // объект сервера
+
+        private string userName;
+        private readonly TcpClient client;
+        private readonly ServerObject server;
 
         public ClientObject(TcpClient tcpClient, ServerObject serverObject)
         {
@@ -25,27 +26,49 @@ namespace Server
             try
             {
                 Stream = client.GetStream();
-                // получаем имя пользователя
-                string message = GetMessage();
-                userName = message;
 
-                message = userName + " вошел в чат";
+                // получаем имя пользователя
+                string message = "Здравствуйте! Как вас зовут?";
+
                 // посылаем сообщение о входе в чат всем подключенным пользователям
                 server.BroadcastMessage(message, this.Id);
+                Console.WriteLine($"Бот: {message}");
+
+                message = GetMessage();
+                userName = message;
                 Console.WriteLine(message);
                 // в бесконечном цикле получаем сообщения от клиента
                 while (true)
                 {
                     try
                     {
+                        message = GetListQuestion();
+                        Console.WriteLine($"Бот: {message}");
+                        server.BroadcastMessage(message, this.Id);
                         message = GetMessage();
-                        message = String.Format("{0}: {1}", userName, message);
-                        Console.WriteLine(message);
+                        Console.WriteLine($"{userName}: {message}");
+                        switch (message.ToLower())
+                        {
+                            case "как дела?":
+                                message = "Все хорошо!";
+                                break;
+                            case "чем занят?":
+                                message = "В чате общаюсь!";
+                                break;
+                            case "пока":
+                                message = "пока";
+                                client.Close();
+                                break;
+                            default:
+                                message = "Я пока не знаю что сказать... :-(";
+                                break;
+                        }
+                        Console.WriteLine($"Бот: {message}");
                         server.BroadcastMessage(message, this.Id);
                     }
                     catch
                     {
-                        message = String.Format("{0}: покинул чат", userName);
+                        message = String.Format($"{userName}: покинул чат");
                         Console.WriteLine(message);
                         server.BroadcastMessage(message, this.Id);
                         break;
@@ -87,6 +110,17 @@ namespace Server
                 Stream.Close();
             if (client != null)
                 client.Close();
+        }
+
+        private string GetListQuestion()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("Список вопросов который можно задать:");
+            builder.AppendLine("Как дела?");
+            builder.AppendLine("чем занят?");
+            builder.AppendLine("Для завершения введите: Пока");
+
+            return builder.ToString();
         }
     }
 }

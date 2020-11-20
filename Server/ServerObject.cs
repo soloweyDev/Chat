@@ -30,7 +30,7 @@ namespace Server
         {
             try
             {
-                tcpListener = new TcpListener(IPAddress.Any, 8080);
+                tcpListener = new TcpListener(IPAddress.Any, 8888);
                 tcpListener.Start();
                 Console.WriteLine("Сервер запущен. Ожидание подключений...");
 
@@ -56,21 +56,23 @@ namespace Server
             byte[] data = Encoding.Unicode.GetBytes(message);
             for (int i = 0; i < clients.Count; i++)
             {
-                if (clients[i].Id != id) // если id клиента не равно id отправляющего
-                {
+                if (clients[i].Id == id) // если id клиента не равно id отправляющего
+                {
                     clients[i].Stream.Write(data, 0, data.Length); //передача данных
-                }
+                }
             }
         }
+
+
         // отключение всех клиентов
         protected internal void Disconnect()
         {
             tcpListener.Stop(); //остановка сервера
 
-            for (int i = 0; i < clients.Count; i++)
+            for (int i = 0; i < clients.Count; i++)
             {
                 clients[i].Close(); //отключение клиента
-            }
+            }
             Environment.Exit(0); //завершение процесса
         }
     }
