@@ -17,14 +17,18 @@ namespace Server
         {
             clients.Add(clientObject);
         }
+
         protected internal void RemoveConnection(string id)
         {
             // получаем по id закрытое подключение
             ClientObject client = clients.FirstOrDefault(c => c.Id == id);
             // и удаляем его из списка подключений
             if (client != null)
+            {
                 clients.Remove(client);
+            }
         }
+
         // прослушивание входящих подключений
         protected internal void Listen()
         {
@@ -74,6 +78,18 @@ namespace Server
                 clients[i].Close(); //отключение клиента
             }
             Environment.Exit(0); //завершение процесса
+        }
+
+        public string GetNameUser()
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (var item in clients)
+            {
+                builder.Append(item.userName).Append(",");
+            }
+            builder.Length--;
+
+            return builder.ToString();
         }
     }
 }
